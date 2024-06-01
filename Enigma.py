@@ -104,7 +104,7 @@ class Enigma:
             if  self.__plugboard is not None:
                 letterValue = self.__plugboard[letterValue]
             
-            print(chr(letterValue+65))
+            #print(chr(letterValue+65))
             result += chr(letterValue+65)
         return result
 
