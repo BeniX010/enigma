@@ -42,9 +42,7 @@ class Rotor:
       will start, must be a integer between 1 and 26
     - ``offset`` -- integer; also known as ring position
 
-    EXAMPLES:
-
-    Creating a custom rotor::
+    EXAMPLES::
 
         sage: r = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 
         ....: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 25, 5, 2)
@@ -215,7 +213,6 @@ class Rotor:
                 "Invalid letter: Input can only contain letters A - Z")
 
         current_offset = (self._position - self._offset) % 26
-        print(f'offset: {current_offset}')
         letter_value = (letter_value + current_offset) % 26
         letter_value = (self._permutation.index(
             letter_value) - current_offset) % 26
@@ -289,12 +286,6 @@ class Reflector:
     .. NOTE::
 
         Every value inside the permutation must be between 0 and 25
-
-    .. SEEALSO::
-
-        :mod: `sage.path.to.this.module` # Idee dahinter ist auf examples ganz 
-        am Anfag der Datei hinzuweisen, keine Ahnung ob das so geht
-
     """
 
     def __init__(self, permutation: list[int]):
@@ -370,58 +361,144 @@ class Reflector:
 
 class Enigma:
     r"""
-    An object representing the Enigma. Purpose is to encrypt and decrypt texts.
+    An object representing the Enigma. The enigma is used to encrypt and
+    decrypt messages.
+    To decrypt a message a enigma with the same settings as the one used to
+    encrypt the message is needed.
 
     INPUT:
 
     - ``rotors`` -- list[Rotor]; a list of rotors to be used in this enigma
+    - ``reflector`` -- Reflector; the reflector to be used in this enigma
+    - ``plugboard`` -- Reflector (default: `None`); optional plugboard to use
+      in this enigma
 
+    EXAMPLES::
+
+        sage: a = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13,
+        ....: 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 25, 5, 2)
+        sage: b = Rotor([1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 
+        ....: 24, 4, 8, 22, 6, 0, 10, 12, 20, 18, 16, 14], 21, 24, 4)
+        sage: c = Rotor([0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 
+        ....: 12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4], 4, 11, 24)
+        sage: d = Reflector([24, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 
+        ....: 14, 10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
+        sage: e = Enigma([a, b, c], d, None)
+        sage: e
+        Enigma with rotors [[21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 
+        13, 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], [1, 3, 5, 7, 9,
+        11, 2, 15, 17, 19, 23, 21, 25, 13, 24, 4, 8, 22, 6, 0, 10, 12, 20, 
+        18, 16, 14], [0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 
+        12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4]], reflector [24, 17, 
+        20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14, 10, 12, 8, 4, 1, 5, 25, 2, 
+        22, 21, 9, 0, 19] and plugboard None
+
+    .. NOTE::
+
+        To use predefined rotors and reflectors see :class:`EnigmaFactory`
     """
 
-    def __init__(self, rotors: list[Rotor], reflector: Reflector):
-        self.rotors = rotors
-        self.reflector = reflector
+    def __init__(self, rotors: list[Rotor], reflector: Reflector, 
+                 plugboard: Reflector = None):
+        r"""
+        Initializes the ``Enigma`` class. See the class :class:`Enigma` for
+        full documentation on the input of this initialization method.
+        """
+
+        self._rotors = rotors
+        self._reflector = reflector
+        self._plugboard = plugboard
 
     def en_de_crypt(self, text):
         r"""
-        Encrypts or decrypts a text.
+        Processes the `text` which results in receiving a encrypted or
+        decrypted text.
+        To decrypt a text, a enigma is needed with the same starting settings
+        as the enigma used to encrypt the text.
 
         INPUT:
 
-        - ``text`` -- string; The text to be processed by this enigma
+        - ``text`` -- string; The text to be processed by this enigma, can only
+        contain letters A - Z
 
         OUTPUT: the encrypted or decrypted text
 
-        EXAMPLES:
+        EXAMPLES::
 
-        TESTS::
+            sage: a = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13,
+            ....: 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 25, 5, 2)
+            sage: b = Rotor([1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 
+            ....: 24, 4, 8, 22, 6, 0, 10, 12, 20, 18, 16, 14], 21, 24, 4)
+            sage: c = Rotor([0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 
+            ....: 12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4], 4, 11, 24)
+            sage: d = Reflector([24, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 
+            ....: 14, 10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
+            sage: e = Enigma([a, b, c], d, None)
+            sage: e.en_de_crypt("HELLO")
+            GCIID
 
+        The text can not contain any other character than the letters A - Z::
+
+            sage: e.en_de_crypt("HELLO HOW ARE YOU")
+            Traceback (most recent call last):
+            ...
+            ValueError: Invalid letter: Input can only contain letters A - Z
+
+        However, lowercase letters are automatically converted to uppercase
+        letters::
+
+            sage: e.en_de_crypt("hellohowareyou")
+            CUNIWXNYWUXNXZ
         """
+
         result = ""
         message = str(text).upper()
 
         for letter in message:
             predecessor_tuple: tuple[str, bool] = letter, True
 
-            for rotor in self.rotors:
-                print(predecessor_tuple)
+            for rotor in self._rotors:
                 predecessor_tuple = rotor._process_letter_forward(
                     predecessor_tuple[0], predecessor_tuple[1])
 
-            print(predecessor_tuple)
-            predecessor_tuple = reflector._process_letter(
+            predecessor_tuple = self._reflector._process_letter(
                 predecessor_tuple[0]), False
 
-            for rotor in reversed(self.rotors):
-                print(predecessor_tuple)
+            for rotor in reversed(self._rotors):
                 predecessor_tuple = rotor._process_letter_backward(
                     predecessor_tuple[0]), False
 
-            print(predecessor_tuple)
-            print("-----------------")
             result += predecessor_tuple[0]
 
         return result
+    
+    def __repr__(self) -> str:
+        r"""
+        Return the string representation of ``self``.
+
+        EXAMPLES::
+
+            sage: a = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13,
+            ....: 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 25, 5, 2)
+            sage: b = Rotor([1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 
+            ....: 24, 4, 8, 22, 6, 0, 10, 12, 20, 18, 16, 14], 21, 24, 4)
+            sage: c = Rotor([0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 
+            ....: 12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4], 4, 11, 24)
+            sage: d = Reflector([24, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 
+            ....: 14, 10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
+            sage: e = Enigma([a, b, c], d, None)
+            sage: e
+            Enigma with rotors [[21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 
+            13, 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], [1, 3, 5, 7, 9,
+            11, 2, 15, 17, 19, 23, 21, 25, 13, 24, 4, 8, 22, 6, 0, 10, 12, 20, 
+            18, 16, 14], [0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 
+            12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4]], reflector [24, 17, 
+            20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14, 10, 12, 8, 4, 1, 5, 25, 2, 
+            22, 21, 9, 0, 19] and plugboard None
+        """
+
+        msg = ("Enigma with rotors: {0}, reflector {1} and plugboard {2}")
+        return msg.format(self._rotors, self._reflector, self._plugboard)
 
 
 class EnigmaFactory:
