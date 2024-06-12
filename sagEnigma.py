@@ -564,7 +564,7 @@ class Enigma:
             22, 21, 9, 0, 19] and plugboard None
         """
 
-        msg = ("Enigma with rotors: {0}, reflector {1} and plugboard {2}")
+        msg = "Enigma using {0}, {1} as a reflector and {2} as a plugboard"
         return msg.format(self._rotors, self._reflector, self._plugboard)
 
 
