@@ -127,9 +127,9 @@ class Rotor:
 
         OUTPUT: a tuple of
 
-        - the processed `letter`
+        - the processed ``letter``
         - a boolean indicating whether the next rotor should rotate, this 
-          happens when the current `position` of the rotor equals the `notch`
+          happens when the current `position` of the rotor equals the ``notch``
 
         EXAMPLES::
 
@@ -259,7 +259,7 @@ class Reflector:
     INPUT:
 
     - ``permutation`` -- list[integer]; permutation to be used in the reflector 
-    which must have a length of 26
+      which must have a length of 26
 
     EXAMPLES::
 
@@ -312,19 +312,19 @@ class Reflector:
 
             sage: r = Reflector([24, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 
             ....: 14, 10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
-            sage: r._process_letter('A')
-            'Y'
+            sage: r._process_letter("A")
+            Y
             
         Can only process letters A - Z::
 
-            sage: r._process_letter('1')
+            sage: r._process_letter("1")
             Traceback (most recent call last):
             ...
             ValueError: Invalid letter: Input can only contain letters A - Z
 
         Letters need to be uppercase::
 
-            sage: r._process_letter('a')
+            sage: r._process_letter("a")
             Traceback (most recent call last):
             ...
             ValueError: Invalid letter: Input can only contain letters A - Z
@@ -409,6 +409,77 @@ class Enigma:
         self._reflector = reflector
         self._plugboard = plugboard
 
+    @staticmethod
+    def create(self, rotors: list[int], initial_positions: list[int], 
+    offsets: list[int], reflector: int, plugboard: Reflector = None):
+        r"""
+        Function to create an Enigma with predefined rotors and reflectors.
+        All of the predefined rotors and reflectors are replicated from the
+        original Enigma-1.
+
+        INPUT:
+
+        - ``rotors`` -- list[integer]; List of integers with each integer
+          indicating which rotor to use, must be a value between 1 and 5
+
+        - ``initial_positions`` -- list[integer]; List of integers setting the
+          initial position of the ``rotors``. This list must be the same length
+          as ``rotors`` since the initial position at index ``i`` relates to
+          the rotor at index ``i``. Note that evey value in this list has to
+          be a integer between 1 and 26
+
+        - ``offsets`` -- list[integer]; List of integers setting the offset of
+          ``rotors``. This list must be the same length as ``rotors`` since the
+          offset at index ``i`` relates to the rotor at index ``i``
+
+        - ``reflector`` -- integer; Select one of three predefined reflectors
+          used in the Enigma-1
+
+        - ``plugboard`` -- Reflector (default: None); Optional plugboard to be
+          used in this enigma
+
+        OUTPUT: Enigma with defined settings
+
+        EXAMPLES::
+        """
+        wheels = [[4, 10, 12, 5, 11, 6, 3, 16, 21, 25, 13, 19, 14, 22, 24, 7, 
+                  23, 20, 18, 15, 0, 8, 1, 17, 2, 9],
+                  [0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 12, 2, 16, 
+                  6, 25, 13, 15, 24, 5, 21, 14, 4],
+                  [1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 24, 4, 8, 
+                  22, 6, 0, 10, 12, 20, 18, 16, 14],
+                  [4, 18, 14, 21, 15, 25, 9, 0, 24, 16, 20, 8, 17, 7, 23, 11, 
+                  13, 5, 19, 6, 10, 3, 2, 12, 22, 1],
+                  [21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 23,
+                  0, 22, 12, 9, 16, 14, 5, 4, 2, 10]]
+        notches = [16, 4, 21, 9, 25]
+        reflectors = [[4, 9, 12, 25, 0, 11, 24, 23, 21, 1, 22, 5, 2, 17, 16, 
+                      20, 14, 13, 19, 18, 15, 8, 10, 7, 6, 3],
+                      [24, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14, 10, 12, 
+                      8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19],
+                      [5, 21, 15, 9, 8, 0, 14, 24, 4, 3, 17, 25, 23, 22, 6, 2, 
+                      19, 10, 20, 16, 18, 1, 13, 12, 7, 11]]
+        rotor_list = list[Rotor] = []
+
+        if len(rotors) < 0:
+            raise ValueError("Enigma must have a rotor")
+        if len(initial_positions) != len(rotors):
+            raise ValueError("initial_positions and rotors must be the same "
+            "length")
+        if len(offsets) != len(rotors):
+            raise ValueError("offsets and rotors must be the same length")
+        if reflector < 0 or reflector > 3:
+            raise ValueError("Reflector must be a value between 1 and 3")
+
+        for idx, r in enumerate(rotors):
+            if r < 0 or r > 5:
+                raise ValueError("Values in rotors must be a integer between "
+                "1 and 5")
+            rotor_list.append(wheels[r], notches[r], initial_positions[idx], 
+            offsets[idx])
+
+        return Enigma(rotor_list, Reflector(reflectors[reflector]), plugboard)
+        
     def en_de_crypt(self, text):
         r"""
         Processes the `text` which results in receiving a encrypted or
@@ -419,7 +490,7 @@ class Enigma:
         INPUT:
 
         - ``text`` -- string; The text to be processed by this enigma, can only
-        contain letters A - Z
+          contain letters A - Z
 
         OUTPUT: the encrypted or decrypted text
 
@@ -499,79 +570,6 @@ class Enigma:
 
         msg = ("Enigma with rotors: {0}, reflector {1} and plugboard {2}")
         return msg.format(self._rotors, self._reflector, self._plugboard)
-
-
-class EnigmaFactory:
-    r"""
-    Factory for creating (semi-) realistic Enigmas. Choose from real reflectors and rotors.
-
-    EXAMPLES:
-
-    TESTS::
-
-    """
-
-    def __init__(self):
-        self._wheels = [[4, 10, 12, 5, 11, 6, 3, 16, 21, 25, 13, 19, 14, 22, 24, 7, 23, 20, 18, 15, 0, 8, 1, 17, 2, 9],
-                        [0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19,
-                            12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4],
-                        [1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13,
-                            24, 4, 8, 22, 6, 0, 10, 12, 20, 18, 16, 14],
-                        [4, 18, 14, 21, 15, 25, 9, 0, 24, 16, 20, 8, 17,
-                            7, 23, 11, 13, 5, 19, 6, 10, 3, 2, 12, 22, 1],
-                        [21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10]]
-        self._notches = [16, 4, 21, 9, 25]
-        self._reflectors = [
-            [4, 9, 12, 25, 0, 11, 24, 23, 21, 1, 22, 5, 2, 17,
-                16, 20, 14, 13, 19, 18, 15, 8, 10, 7, 6, 3],
-            [24, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14,
-                10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19],
-            [5, 21, 15, 9, 8, 0, 14, 24, 4, 3, 17, 25, 23, 22, 6, 2, 19, 10, 20, 16, 18, 1, 13, 12, 7, 11]]
-
-    def create(self, rotors: list[(int, int, int)], reflector: int) -> Enigma:
-        r"""
-        Function to create an Enigma with predefined rotors and reflectors.
-
-        INPUT:
-
-        - ``rotors`` -- list[(integer, integer, integer)]; List of integer tuples with the first integer indicating
-          which rotor to use (I to V), the second integer sets the initial position of the rotor and the third integer
-          indicating the ring position
-
-        - ``reflector`` -- integer; Sets on of the three (3) predefined reflectors
-
-        OUTPUT: Enigma with predefined settings
-
-        EXAMPLES:
-
-        This example shows the creation of a realistic enigma ::
-
-            sage: F = EnigmaFactory()
-            sage: A = F.create([(5, 5, 2), (3, 24, 4), (2, 11, 24)], 2)
-
-        Nobody will stop you from having more than necessary rotors ::
-            sage: F = EnigmaFactory()
-            sage: B = F.create([(1, 2, 3), (2, 3, 4), (3, 4, 5), (4, 5, 6), (5, 6, 7), (3, 3, 3), (1, 1, 1)], 1)
-
-        TESTS::
-
-        """
-        if len(rotors) < 0:
-            raise ValueError("Enigma must have a rotor")
-
-        if reflector - 1 < 0 or reflector - 1 > 2:
-            raise ValueError("There are only 3 predefined reflectors.")
-        reflector_ = Reflector(self._reflectors[reflector])
-
-        rotor_list: list[Rotor] = []
-        for r in rotors:
-            if r[0] - 1 < 0 or r[0] - 1 > 4:
-                raise ValueError("There are only 5 predefined rotors.")
-
-            rotor_list.append(
-                Rotor(self._wheels[r[0] - 1], self._notches[r[0] - 1], r[1], r[2]))
-
-        return Enigma(rotor_list, reflector_)
 
 
 r1 = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7,
