@@ -232,6 +232,29 @@ class Rotor:
 
         return chr(letter_value + 65)
     
+    def duplicate(self):
+        r"""
+        Creates a copy of the current rotor. Note that it will not be a 1:1
+        copy of the rotor, since the initial position of the copy will be set
+        to the current position of this rotor
+
+        OUTPUT: Copy of this rotor
+
+        EXAMPLES::
+
+            sage: r = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7,
+            ....: 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 5, 2)
+            sage: r._process_letter_forward("A", True)
+            sage: c = r.duplicate()
+            sage: r
+            Rotor with current position 6 (Initially 6), offset of 2, notch at 
+            26 and using permutation [21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 
+            3, 13, 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10]
+        """
+
+        return Rotor(self._permutation, self._notch + 1, self._position + 1, 
+                     self._offset + 1)
+    
     def __repr__(self) -> str:
         r"""
         Return the string representation of ``self``.
@@ -512,8 +535,8 @@ class Enigma:
             Traceback (most recent call last);
             ...
             ValueError: Reflector must be a value between 1 and 3
-
         """
+
         wheels = [[4, 10, 12, 5, 11, 6, 3, 16, 21, 25, 13, 19, 14, 22, 24, 7, 
                   23, 20, 18, 15, 0, 8, 1, 17, 2, 9],
                   [0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 12, 2, 16, 
@@ -551,7 +574,7 @@ class Enigma:
                                     initial_positions[idx], offsets[idx]))
 
         return Enigma(rotor_list, Reflector(reflectors[reflector-1]), plugboard)
-        
+
     def en_de_crypt(self, text):
         r"""
         Processes the `text` which results in receiving a encrypted or
@@ -623,6 +646,33 @@ class Enigma:
 
         return result
     
+    def duplicate(self):
+        r"""
+        Creates a copy of the current enigma. Note that it will not be a 1:1
+        copy of the enigma, since the initial positions of the new rotors will
+        be the current positions of the rotors in this enigma.
+
+        OUTPUT: Copy of this enigma
+
+        EXAMPLES::
+
+            sage: e = Enigma.create([5, 3, 2], [5, 24, 11], [2, 4, 24], 2)
+            sage: c = e.duplicate()
+            sage: text = "Hello"
+            sage: encrypted_text = e.en_de_crypt(text)
+            sage: decrypted_text = c.en_de_crypt(encrypted_text)
+            sage: decrypted_text == text
+            True
+        """
+        
+        # since rotors have a own state (position) we need a deep copy
+        new_rotors: list[Rotor] = []
+        for rotor in self._rotors:
+            new_rotors.append(rotor.duplicate())
+
+        # plugboard and reflector are static permutations anyways
+        return Enigma(new_rotors, self._reflector, self._plugboard)
+
     def __repr__(self) -> str:
         r"""
         Return the string representation of ``self``.
