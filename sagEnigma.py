@@ -529,6 +529,10 @@ class Enigma:
         for letter in message:
             predecessor_tuple: tuple[str, bool] = letter, True
 
+            if self._plugboard is not None:
+                predecessor_tuple = self._plugboard._process_letter(
+                    predecessor_tuple[0], True)
+
             for rotor in self._rotors:
                 predecessor_tuple = rotor._process_letter_forward(
                     predecessor_tuple[0], predecessor_tuple[1])
@@ -539,6 +543,10 @@ class Enigma:
             for rotor in reversed(self._rotors):
                 predecessor_tuple = rotor._process_letter_backward(
                     predecessor_tuple[0]), False
+                
+            if self._plugboard is not None:
+                predecessor_tuple = self._plugboard._process_letter(
+                    predecessor_tuple[0], False)
 
             result += predecessor_tuple[0]
 
