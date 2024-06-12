@@ -35,7 +35,8 @@ class Rotor:
     INPUT:
 
     - ``permutation`` -- list[integer]; the permutation of the letters for this 
-      rotor, must have a length of 26
+      rotor, must have a length of 26 with values being a integer between 0 and
+      25
     - ``notch`` -- integer; sets the position at which the rotor will cause the 
       following rotor to rotate, must be a integer between 1 and 26
     - ``initial_position`` -- integer; sets the position at which the rotor 
@@ -90,9 +91,18 @@ class Rotor:
         ...
         ValueError: Initial position must be a integer between 1 and 26
 
-    .. NOTE::
+    The values in the permutation must be a integer between 0 and 25::
 
-        Every value inside the permutation must be between 0 and 25
+        sage: r = Rotor([26, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 
+        ....: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 0, 2)
+        Traceback (most recen call last):
+        ...
+        ValueError: Values of the permutation must be a integer between 0 and 25
+        sage: r = Rotor([-1, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 
+        ....: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 0, 2)
+        Traceback (most recen call last):
+        ...
+        ValueError: Values of the permutation must be a integer between 0 and 25
     """
 
     def __init__(self, permutation: list[int], notch: int, initial_position: int, offset: int):
@@ -108,6 +118,10 @@ class Rotor:
         if initial_position > 26 or initial_position < 1:
             raise ValueError("Initial position must be a integer between 1 and "
                              "26")
+        for v in permutation:
+            if v < 0 or v > 25:
+                raise ValueError("Values of the permutation must be a integer "
+                                 "between 0 and 25")
         self._position = initial_position - 1
         self._initial_position = initial_position - 1
         self._notch = notch - 1
@@ -257,7 +271,8 @@ class Reflector:
     INPUT:
 
     - ``permutation`` -- list[integer]; permutation to be used in the reflector 
-      which must have a length of 26
+      which must have a length of 26, note that every value in the permutation
+      has to be a integer between 0 and 25
 
     EXAMPLES::
 
@@ -280,9 +295,21 @@ class Reflector:
         ...
         ValueError: Permutation must have a length of 26
 
-    .. NOTE::
+    Note that values used in the reflector/plugboard must be a integer
+    between 0 and 25::
 
-        Every value inside the permutation must be between 0 and 25
+        sage: r = Reflector([50, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14, 
+        ....: 10, 12, 8, 4, 1, 5, 25, 2, 22, 21])
+        Traceback (most recent call last):
+        ...
+        ValueError: Values of the permutation must be a integer between 0 and
+        25
+        sage: r = Reflector([-12, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14, 
+        ....: 10, 12, 8, 4, 1, 5, 25, 2, 22, 21])
+        Traceback (most recent call last):
+        ...
+        ValueError: Values of the permutation must be a integer between 0 and
+        25
     """
 
     def __init__(self, permutation: list[int]):
@@ -293,6 +320,10 @@ class Reflector:
 
         if len(permutation) != 26:
             raise ValueError("Permutation must have a length of 26")
+        for v in permutation:
+            if v < 0 or v > 25:
+                raise ValueError("Values of the permutation must be a integer "
+                                 "between 0 and 25")
         self._permutation = permutation
 
     def _process_letter(self, letter: str) -> str:
@@ -396,7 +427,7 @@ class Enigma:
 
     .. NOTE::
 
-        To use predefined rotors and reflectors see :class:`EnigmaFactory`
+        To use predefined rotors and reflectors see :meth:`create`
     """
 
     def __init__(self, rotors: list[Rotor], reflector: Reflector, 
