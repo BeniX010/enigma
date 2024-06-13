@@ -304,7 +304,7 @@ class Reflector:
 
     This class fulfills the purpose of the needed reflector inside the enigma
     but can also act as the plugboard since the technical requirements are
-    the same.
+    almost the same.
     In the case of being the actual reflector it gets used once a letter has
     passed every rotor for the first time, reflecting it back to the rotors
     after which the letter passes every rotor again.
@@ -388,13 +388,15 @@ class Reflector:
             
         self._permutation = permutation
 
-    def _process_letter(self, letter: str) -> str:
+    def _process_letter(self, letter: str, forward: bool = True) -> str:
         r"""
         Private function to permutate a given letter
 
         INPUT:
 
         - ``letter`` -- string; letter to be processed
+        - ``forward`` -- boolean (default: ``True``); indicating the direction of travel, this is
+          only used when the reflector is used as a plugboard
 
         OUTPUT: processed letter
 
@@ -404,6 +406,14 @@ class Reflector:
             ....: 14, 10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
             sage: r._process_letter("A")
             Y
+
+        When being used as a plugboard we need to change the direction of
+        travel when the letter passes the second time::
+
+            sage: r = Reflector([24, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 
+            ....: 14, 10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
+            sage: r._process_letter("Y", False)
+            A
             
         Can only process letters A - Z::
 
@@ -426,7 +436,10 @@ class Reflector:
             raise ValueError(
                 "Invalid letter: Input can only contain letters A - Z")
 
-        letter_value = self._permutation[letter_value]
+        if forward:
+            letter_value = self._permutation[letter_value]
+        else:
+            letter_value = self._permutation.index(letter_value)
 
         return chr(letter_value + 65)
     
@@ -459,7 +472,7 @@ class Enigma:
 
     - ``rotors`` -- list[Rotor]; a list of rotors to be used in this enigma
     - ``reflector`` -- Reflector; the reflector to be used in this enigma
-    - ``plugboard`` -- Reflector (default: `None`); optional plugboard to use
+    - ``plugboard`` -- Reflector (default: ``None``); optional plugboard to use
       in this enigma
 
     EXAMPLES::
@@ -721,7 +734,7 @@ class Enigma:
                 
             if self._plugboard is not None:
                 predecessor_tuple = self._plugboard._process_letter(
-                    predecessor_tuple[0]), False
+                    predecessor_tuple[0], False), False
 
             result += predecessor_tuple[0]
 
