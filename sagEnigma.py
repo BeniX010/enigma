@@ -1,5 +1,3 @@
-import sys
-
 r"""
 Enigma
 
@@ -12,7 +10,82 @@ EXAMPLES:
 
 The easiest way to create an Enigma is by using the predefined Enigma settings::
 
-    sage: 
+    sage: enigma = Enigma.create([5, 3, 2], [5, 24, 11], [2, 4, 24], 2)
+    sage: one = enigma.en_de_crypt("GOODMORNING")
+    sage: one
+    HKVOWVPLLBC
+
+You can also build a custom enigma. Here we build the enigma we just created by
+hand::
+
+    sage: a = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 23, 
+    ....: 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 5, 2)
+    sage: b = Rotor([1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 24, 4, 
+    ....: 8, 22, 6, 0, 10, 12, 20, 18, 16, 14], 22, 24, 4)
+    sage: c = Rotor([0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 12, 2, 
+    ....: 16, 6, 25, 13, 15, 24, 5, 21, 14, 4], 5, 11, 24)
+    sage: r = Reflector([24, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14, 10, 
+    ....: 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
+    sage: enigma_custom = Enigma([a, b, c], r)
+    sage: two = enigma_custom.en_de_crypt("GOODMORNING")
+    sage: two
+    HKVOWVPLLBC
+    sage: one == two
+    sage: True
+    
+To decrypt an encrypted message we need to know the initial settings of the
+enigma used to encrypt the message. This can be done by just recreating that
+enigma::
+
+    sage: decrypt_enigma = Enigma.create([5, 3, 2], [5, 24, 11], [2, 4, 24], 2)
+    sage: decrypted = decrypt_enigma.en_de_crypt("HKVOWVPLLBC")
+    sage: decrypted
+    GOODMORNING
+
+If we encrypt multiple messages it may be stressful to recreate the exact state
+of the enigma to decrypt a specific message. In that case we can duplicate the
+enigma before we encrypt a message that we want to decrypt::
+
+    sage: enigma.en_de_crypt("MORE")
+    sage: enigma.en_de_crypt("WORDS")
+    sage: decrypt_enigma = enigma.duplicate()
+    sage: encrypted = enigma.en_de_crypt("SECRET")
+    sage: encrypted
+    NGZIFC
+    sage: decrypted = decrypt_enigma.en_de_crypt(encrypted)
+    sage: decrypted
+    SECRET
+
+The enigma also supports a plugboard::
+
+    sage: p = Reflector([1, 3, 13, 19, 24, 2, 25, 8, 0, 17, 18, 20, 12, 4, 9, 
+    ....: 11, 16, 21, 10, 6, 23, 15, 7, 22, 5, 14])
+    sage: enigma = Enigma.create([3, 4, 1], [12, 23, 1], [1, 8, 7], 1, p)
+    sage: decrypt_enigma = enigma.duplicate()
+    sage: encrypted = enigma.en_de_crypt("PLUGBOARD")
+    sage: encrypted
+    YHKVADMPH
+    sage: decrypted = decrypt_enigma.en_de_crypt("YHKVADMPH")
+    sage: decrypted
+    PLUGBOARD
+
+It may also be helpful to take a closer look at the representation of the used
+permutations. Each letter has a index beginning with 0 representing the letter
+A. If we use a plugboard [0, 1, 2, ...] we map every letter to itself (A -> A,
+B -> B, and so on)::
+
+    sage: p = Reflector([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
+    ....: 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
+    sage: e_wo_p = Enigma.create([3, 4, 1], [12, 23, 1], [1, 8, 7], 1)
+    sage: e_w_p = Enigma.create([3, 4, 1], [12, 23, 1], [1, 8, 7], 1, p)
+    sage: one = e_wo_p.en_de_crypt("PERMUTATION")
+    sage: one
+    KQFCZJUITNF
+    sage: two = e_w_p.en_de_crypt("PERMUTATION")
+    sage: two
+    KQFCZJUITNF
+    sage: one == two
+    True
 
 AUTHORS:
 
@@ -800,14 +873,46 @@ class Enigma:
         msg = "Enigma using {0}, {1} as a reflector and {2} as a plugboard"
         return msg.format(self._rotors, self._reflector, self._plugboard)
 
+# TODO: delete everything below
+# easiest way by using Enigma.create
+print("EX-SIMPLE")
+enigma = Enigma.create([5, 3, 2], [5, 24, 11], [2, 4, 24], 2)
+print(enigma.en_de_crypt("GOODMORNING"))
 
-r1 = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7,
+# lets create the same enigma as above but treat it  as if it was custom made
+print("EX-CUSTOM")
+a = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7,
            11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 5, 2)
-r2 = Rotor([1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 24,
+b = Rotor([1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 24,
            4, 8, 22, 6, 0, 10, 12, 20, 18, 16, 14], 22, 24, 4)
-r3 = Rotor([0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 12,
+c = Rotor([0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 12,
            2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4], 5, 11, 24)
-reflector = Reflector([24, 17, 20, 7, 16, 18, 11, 3, 15, 23,
-                      13, 6, 14, 10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
-enigma = Enigma([r1, r2, r3], reflector)
-print(enigma.en_de_crypt(sys.argv[1]))
+r = Reflector([24, 17, 20, 7, 16, 18, 11, 3, 15, 23,
+               13, 6, 14, 10, 12, 8, 4, 1, 5, 25, 2, 22, 21, 9, 0, 19])
+enigma_custom = Enigma([a, b, c], r)
+print(enigma_custom.en_de_crypt("GOODMORNING"))
+
+#if we want to decrypt a encrypted message we need to know the initial settings of the enigma that encrypted the message
+# in this case we just have to copy the line of code from before
+print("EX-DECRYPT")
+decrypt_enigma = Enigma.create([5, 3, 2], [5, 24, 11], [2, 4, 24], 2)
+print(decrypt_enigma.en_de_crypt("HKVOWVPLLBC"))
+
+# if we used the enigma a little bit beforehand it may be hard to exactly recreate the situation for a second enigma
+# to decrypt the message, in that case just copy the enigma before decrypting
+print("EX-COPY-DECRYPT")
+print(enigma.en_de_crypt("MORE"))
+print(enigma.en_de_crypt("WORDS"))
+decrypt_enigma = enigma.duplicate()
+print(enigma.en_de_crypt("SECRET"))
+print(decrypt_enigma.en_de_crypt("NGZIFC"))
+
+# we can also use a plugboard, since the plugboard technically is the same as a reflector in this implementation
+# we have to pass a reflector kind object
+print("EX-PLUGBOARD")
+p = Reflector([1, 3, 13, 19, 24, 2, 25, 8, 0, 17, 18, 20, 12, 4, 9, 11, 16, 21, 10, 6, 23, 15, 7, 22, 5, 14])
+p1 = Reflector([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
+enigma = Enigma.create([3, 4, 1], [12, 23, 1], [1, 8, 7], 1, p)
+decrypt_enigma = enigma.duplicate()
+print(enigma.en_de_crypt("PLUGBOARD"))
+print(decrypt_enigma.en_de_crypt("YHKVADMPH"))
