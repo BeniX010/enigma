@@ -89,14 +89,13 @@ B -> B, and so on)::
 
 AUTHORS:
 
-- BENE HIER NAME KOVAC MANN (2024-06): initial version (auch email unten bitte danke)
-- Nico Koeckerbauer (2024-06): initial version
+- Nico Koeckerbauer and Benedek Kovacs (2024-06): initial version
 
 """
 
 
 # ****************************************************************************
-#       Copyright (C) 2024 YOUR NAME <your email>
+#       Copyright (C) 2024 Nico Koeckerbauer <kolando@gmx.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
