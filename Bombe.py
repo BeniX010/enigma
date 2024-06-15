@@ -1,12 +1,14 @@
-import Enigma as Eng
+from sagEnigma import Enigma
 import threading
 from queue import Queue
 
+
+# implementation for Enigma 1 and without a plugboard as of now
 class Bombe:
-    def __init__(self, max_wheel_val, max_position_val, max_ukw_val, crib, encrypted_word):
+    def __init__(self, max_wheel_val, max_position_val, max_reflector_val, crib, encrypted_word):
         self.max_wheel_val = max_wheel_val
         self.max_position_val = max_position_val
-        self.max_ukw_val = max_ukw_val
+        self.max_reflector_val = max_reflector_val
         self.crib = crib
         self.encrypted_word = encrypted_word
         self.tasks = Queue()
@@ -19,23 +21,25 @@ class Bombe:
                     for position1 in range(1, self.max_position_val):
                         for position2 in range(1, self.max_position_val):
                             for position3 in range(1, self.max_position_val):
-                                for ringPosition1 in range(1, self.max_position_val):
-                                    for ringPosition2 in range(1, self.max_position_val):
-                                        for ringPosition3 in range(1, self.max_position_val):
-                                            for ukw in range(1, self.max_ukw_val):
+                                for offset1 in range(1, self.max_position_val):
+                                    for offset2 in range(1, self.max_position_val):
+                                        for offset3 in range(1, self.max_position_val):
+                                            for reflector in range(1, self.max_reflector_val):
                                                 self.tasks.put(
-                                                    [wheel1, wheel2, wheel3, position1, position2, position3, ringPosition1, ringPosition2, ringPosition3, ukw])
+                                                    [wheel1, wheel2, wheel3, position1, position2, position3,
+                                                     offset1, offset2, offset3, reflector])
 
     def get_se_germans(self):
         try:
             while not self.tasks.empty():
                 enigma_config = self.tasks.get()
-                wheel_1, wheel_2, wheel_3, position_1, position_2, position_3, ring_position_1, ring_position_2, ring_position_3, ukw_in = enigma_config
-                threaded_enigma = Eng.Enigma(wheel_1, wheel_2, wheel_3, position_1, position_2, position_3, ring_position_1, ring_position_2, ring_position_3, ukw_in, None)
-                decrypted_text = threaded_enigma.encrypt_decrypt(self.encrypted_word)
+                wheel_1, wheel_2, wheel_3, position_1, position_2, position_3, offset1, offset2, offset3, reflector = enigma_config
+                threaded_enigma = Enigma.create([wheel_1, wheel_2, wheel_3], [position_1, position_2, position_3],
+                                                [offset1, offset2, offset3], reflector)
+                decrypted_text = threaded_enigma.en_de_crypt(self.encrypted_word)
                 if decrypted_text == self.crib:
                     print(f"Decrypted Message: {decrypted_text}")
-                    print(f"One possible setting of the Day: {enigma_config} go get those Fritzes!")
+                    print(f"One possible setting of the Day: {enigma_config} go get those Fritzes!\n")
                 self.tasks.task_done()
         except Exception as e:
             print(e)
