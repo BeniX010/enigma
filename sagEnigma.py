@@ -70,7 +70,7 @@ The enigma also supports a plugboard::
     PLUGBOARD
 
 It may also be helpful to take a closer look at the representation of the used
-permutations. Each letter has a index beginning with 0 representing the letter
+permutations. Each letter has an index beginning with 0 representing the letter
 A. If we use a plugboard [0, 1, 2, ...] we map every letter to itself (A -> A,
 B -> B, and so on)::
 
@@ -115,12 +115,12 @@ class Rotor:
     INPUT:
 
     - ``permutation`` -- list[integer]; the permutation of the letters for this
-      rotor, must have a length of 26 with values being a integer between 0 and
+      rotor, must have a length of 26 with values being an integer between 0 and
       25, also note that the permutation must be a bijection
     - ``notch`` -- integer; sets the position at which the rotor will cause the
-      following rotor to rotate, must be a integer between 1 and 26
+      following rotor to rotate, must be an integer between 1 and 26
     - ``initial_position`` -- integer; sets the position at which the rotor
-      will start, must be a integer between 1 and 26
+      will start, must be an integer between 1 and 26
     - ``offset`` -- integer; also known as ring position
 
     EXAMPLES::
@@ -145,44 +145,44 @@ class Rotor:
         ...
         ValueError: Permutation must have a length of 26
 
-    The notch must be a integer between 1 and 26::
+    The notch must be an integer between 1 and 26::
 
         sage: r = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11,
         sage: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 50, 5, 2)
         Traceback (most recent call last):
         ...
-        ValueError: Notch must be a integer between 1 and 26
+        ValueError: Notch must be an integer between 1 and 26
         sage: r = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11,
         ....: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 0, 5, 2)
         Traceback (most recent call last):
         ...
-        ValueError: Notch must be a integer between 1 and 26
+        ValueError: Notch must be an integer between 1 and 26
 
-    The initial position of the rotor must be a integer between 1 and 26::
+    The initial position of the rotor must be an integer between 1 and 26::
 
         sage: r = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11,
         ....: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 0, 2)
         Traceback (most recent call last):
         ...
-        ValueError: Initial position must be a integer between 1 and 26
+        ValueError: Initial position must be an integer between 1 and 26
         sage: r = Rotor([21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11,
         ....: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 30, 2)
         Traceback (most recent call last):
         ...
-        ValueError: Initial position must be a integer between 1 and 26
+        ValueError: Initial position must be an integer between 1 and 26
 
-    The values in the permutation must be a integer between 0 and 25::
+    The values in the permutation must be an integer between 0 and 25::
 
         sage: r = Rotor([26, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11,
         ....: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 0, 2)
         Traceback (most recent call last):
         ...
-        ValueError: Values of the permutation must be a integer between 0 and 25
+        ValueError: Values of the permutation must be an integer between 0 and 25
         sage: r = Rotor([-1, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11,
         ....: 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10], 26, 0, 2)
         Traceback (most recent call last):
         ...
-        ValueError: Values of the permutation must be a integer between 0 and 25
+        ValueError: Values of the permutation must be an integer between 0 and 25
 
     The permutation also must be a bijection, meaning that no value in the
     permutation can occur more than one time::
@@ -391,7 +391,7 @@ class Reflector:
 
     - ``permutation`` -- list[integer]; permutation to be used in the reflector
       which must have a length of 26, note that every value in the permutation
-      has to be a integer between 0 and 25 and the permutation itself must be
+      has to be an integer between 0 and 25 and the permutation itself must be
       a bijection
 
     EXAMPLES::
@@ -415,20 +415,20 @@ class Reflector:
         ...
         ValueError: Permutation must have a length of 26
 
-    Note that values used in the reflector/plugboard must be a integer
+    Note that values used in the reflector/plugboard must be an integer
     between 0 and 25::
 
         sage: r = Reflector([50, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14,
         ....: 10, 12, 8, 4, 1, 5, 25, 2, 22, 21])
         Traceback (most recent call last):
         ...
-        ValueError: Values of the permutation must be a integer between 0 and
+        ValueError: Values of the permutation must be an integer between 0 and
         25
         sage: r = Reflector([-12, 17, 20, 7, 16, 18, 11, 3, 15, 23, 13, 6, 14,
         ....: 10, 12, 8, 4, 1, 5, 25, 2, 22, 21])
         Traceback (most recent call last):
         ...
-        ValueError: Values of the permutation must be a integer between 0 and
+        ValueError: Values of the permutation must be an integer between 0 and
         25
 
     The permutation for a reflector/plugboard must be a bijection, meaning that
@@ -745,9 +745,9 @@ class Enigma:
 
     def en_de_crypt(self, text):
         r"""
-        Processes the `text` which results in receiving a encrypted or
+        Processes the `text` which results in receiving an encrypted or
         decrypted text.
-        To decrypt a text, a enigma is needed with the same starting settings
+        To decrypt a text, an enigma is needed with the same starting settings
         as the enigma used to encrypt the text.
 
         INPUT:
@@ -833,7 +833,7 @@ class Enigma:
             True
         """
 
-        # since rotors have a own state (position) we need a deep copy
+        # since rotors have an own state (position) we need a deep copy
         new_rotors: list[Rotor] = []
         for rotor in self._rotors:
             new_rotors.append(rotor.duplicate())
